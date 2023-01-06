@@ -11,28 +11,49 @@ import {
   query, orderBy, 
 
 } from 'firebase/firestore';
+import { useStoreAuth } from '@/stores/storeAuth'
 
 
-const noteCollectionRef = collection(db, 'notes')
+let noteCollectionRef
 
 // Order and limit notes
-const noteCollectionQuery = query(noteCollectionRef, orderBy('date', 'desc'));
+let noteCollectionQuery 
+
+let getSnapshotNotes = null
 
 export const useStoreNotes = defineStore('storeNotes', {
   state: () => {
     return { 
-      notes: []
+      notes: [],
+      notesLoaded: false,
     }
   },
 
 
   actions: {
+    // init
+    init() {
+      const storeAuth = useStoreAuth()
+
+      // console.log(storeAuth.user.id);
+
+      noteCollectionRef = collection(db, 'users', storeAuth.user.id, 'notes')
+      noteCollectionQuery = query(noteCollectionRef, orderBy('date', 'desc'));
+
+      this.getNotes()
+    },
     // Get data on firebase
     async getNotes() {
+      
 
     // Listen to multiple documents in a collection
+      this.notesLoaded = false
 
-      onSnapshot(noteCollectionQuery, (querySnapshot) => {
+      // unsubscribe from any active listener
+      if (getSnapshotNotes) {
+        getSnapshotNotes()
+      }
+      getSnapshotNotes = onSnapshot(noteCollectionQuery, (querySnapshot) => {
         const notes = [];
         querySnapshot.forEach((doc) => {
             
@@ -43,9 +64,17 @@ export const useStoreNotes = defineStore('storeNotes', {
             }
             notes.push(note)
         });
-        this.notes = notes
         
+        this.notes = notes
+        this.notesLoaded = true        
       });
+    },
+
+    clearNotes () {
+      this.notes = []
+      if (getSnapshotNotes) {
+        getSnapshotNotes()
+      }
     },
 
     async addNote(newNoteContent) {

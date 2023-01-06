@@ -14,21 +14,21 @@
 */
 
   import NavBar from '@/components/Layout/NavBar.vue'
-  import { useStoreNotes } from '@/stores/storeNotes'
+  import { useStoreAuth } from '@/stores/storeAuth'
   import { onMounted } from 'vue'
 
 /*
   store
 */
 
-  const storeNotes = useStoreNotes()
+  const storeAuth = useStoreAuth()
 
 /*
   onMouted
 */
-onMounted(() => {
-  storeNotes.getNotes()
-})
+  onMounted(() => {
+    storeAuth.init()
+  })
 
 </script>
 
