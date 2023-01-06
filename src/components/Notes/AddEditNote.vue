@@ -13,8 +13,8 @@
     <div class="field">
       <div class="control">
         <textarea
-          v-model="modelValue"
-          @input="$emit('update:modelValue', modelValue)"
+          :value="modelValue"
+          @input="(event) => $emit('update:modelValue', event.target.value)"
           class="textarea"
           :placeholder="placeholder"
           ref="textareaRef"
@@ -63,11 +63,7 @@
     }
   })
 
-/*
-  emits
-*/
 
-  const emit = defineEmits(['update:modelValue'])
 
 /*
   focus textarea
